@@ -1,0 +1,45 @@
+version: '2'
+services:
+  user-service:
+    build: './user-service'
+    ports:
+      - "4000:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/noteApp
+
+  note-service:
+    build: './note-service'
+    ports:
+      - "7070:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/noteApp
+
+  email-service:
+    build: './email-service'
+    ports:
+      - "5050:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/noteApp
+  
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      #- ./web/public:/srv/www/static
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - user-service
+      - note-service
+      - email-service
